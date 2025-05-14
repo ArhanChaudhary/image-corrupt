@@ -22,7 +22,7 @@ base="${filename%."$ext"}"
 
 cd "${ext}s" || exit 1
 # The results of this loop are uninteresting for jpg
-if [ "$ext" != "jpg" ]; then
+if [ "$ext" != "jpg" ] && [ "$ext" != "jpeg" ]; then
     if command -v parallel &> /dev/null; then
         parallel --progress --eta ffmpeg -y -i {} _{} ::: *."$ext"
         for file in [!_]*."$ext"; do

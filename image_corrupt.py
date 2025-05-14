@@ -34,8 +34,9 @@ for i in range(COUNT):
     while True:
         olddata = data[:]
         # The beginning has important metadata
-        pos = random.randint(100, len(data) - 100)
+        pos = random.randint(100, len(data) - 1)
         data[pos] = (data[pos] + 1) % 256
+        # data[pos] ^= (1 << random.randint(0, 7))
         with open(f"{ext}s/{i:04}.{ext}", "wb") as f:
             f.write(data)
         if (
