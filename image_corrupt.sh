@@ -1,6 +1,7 @@
 #!/bin/bash
 
 input_file="$1"
+
 if [ -z "$input_file" ]; then
     echo "Usage: $0 <filename>"
     exit 1
@@ -13,19 +14,27 @@ for cmd in magick ffmpeg python; do
     fi
 done
 
-python image_corrupt.py "$input_file" || exit 1
+python "${0%.*}".py "$input_file" || exit 1
 
-# Extract the file extension and base name
-ext="${input_file##*.}"
-base="${input_file%."$ext"}"
+filename=$(basename -- "$input_file")
+ext="${filename##*.}"
+base="${filename%."$ext"}"
 
 cd "${ext}s" || exit 1
-# You can remove this for loop if the results are uninteresting
-# ImageMagick might crash before processing all the images but thats ok
-for file in *."$ext"; do
-    ffmpeg -y -i "$file" "_$file"
-    mv "_$file" "$file"
-done
+# The results of this loop are uninteresting for jpg
+if [ "$ext" != "jpg" ]; then
+    if command -v parallel &> /dev/null; then
+        parallel --progress --eta ffmpeg -y -i {} _{} ::: *."$ext"
+        for file in [!_]*."$ext"; do
+            mv "_$file" "$file"
+        done
+    else
+        for file in *."$ext"; do
+            ffmpeg -y -i "$file" "_$file"
+            mv "_$file" "$file"
+        done
+    fi
+fi
 # I had to resort to ImageMagick's deprecated `convert` program because
 # ImageMagick would sometimes crash more than half way through without
 # generating the GIF. The old version handled this correctly, and I
