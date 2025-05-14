@@ -15,3 +15,9 @@ Optionally, parallel
 ```bash
 ./image_corrupt.sh [image_file]
 ```
+
+With ImageMagick installed, you can easily convert your image to other formats to see how the corruption changes.
+
+```bash
+magick [image_file_base].jpg [image_file_base].avif
+```
